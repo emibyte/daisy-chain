@@ -1,3 +1,7 @@
+.direnv
+.envrc
+result
+
 # Prerequisites
 *.d
 

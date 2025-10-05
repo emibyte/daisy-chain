@@ -2,6 +2,7 @@
   description = "ncurses app with bundled munit";
 
   inputs = {
+    self.submodules = true;
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
@@ -21,8 +22,6 @@
       version = "0.1.0";
 
       src = ./.; # whole project directory
-      dontCopySrc = true;
-
       buildInputs = [pkgs.ncurses pkgs.json_c];
 
       # TODO: write a makefile bcs this will get tedious
@@ -37,15 +36,17 @@
       checkPhase = ''
         # compile munit.c together with the test source
         $CC -Wall -O2 -c ${src}/includes/munit/munit.c ${extraCFlags}
-        $CC -Wall -O2 -c src/test.c
+        $CC -Wall -O2 -c src/test.c ${extraCFlags}
 
         $CC -o test-daisy-chain munit.o test.o -lncurses -ljson-c
+        echo "=== running test-daisy-chain ==="
         ./test-daisy-chain
       '';
 
       installPhase = ''
         mkdir -p $out/bin
         cp daisy-chain $out/bin/
+        cp test-daisy-chain $out/bin/
       '';
     };
   };

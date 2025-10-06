@@ -14,7 +14,7 @@
   in {
     formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.alejandra;
     devShells.x86_64-linux.default = pkgs.mkShell {
-      buildInputs = with pkgs; [gcc ncurses json_c clang-tools];
+      buildInputs = with pkgs; [gcc ncurses json_c clang-tools valgrind];
     };
 
     packages.x86_64-linux.default = pkgs.stdenv.mkDerivation rec {

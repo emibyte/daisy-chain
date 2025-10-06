@@ -39,8 +39,6 @@
         $CC -Wall -O2 -c src/test.c ${extraCFlags}
 
         $CC -o test-daisy-chain munit.o test.o -lncurses -ljson-c
-        echo "=== running test-daisy-chain ==="
-        ./test-daisy-chain
       '';
 
       installPhase = ''

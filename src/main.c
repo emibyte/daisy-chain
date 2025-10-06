@@ -1,7 +1,10 @@
-#include <stdio.h>
 #include <curses.h>
 
 int main(void) {
-  printf("this lowkey kinda works\n");
+  initscr();
+  addstr("welcome to daisy chain\n");
+  refresh();
+  endwin();
+
   return 0;
 }

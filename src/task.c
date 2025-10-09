@@ -1,5 +1,6 @@
 #include "task.h"
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,4 +48,15 @@ void free_task(task_t *task) {
   }
 
   free(task);
+}
+
+char *task_repr(task_t *task) {
+  int size_to_allocate = strlen(task->description) + 50;
+  char *display_buffer = malloc(size_to_allocate * sizeof(char));
+  if (display_buffer == NULL) {
+    return NULL;
+  }
+  char completed = task->completed ? 'x' : ' ';
+  sprintf(display_buffer, "%d. - %s - [%c]", task->id, task->description, completed);
+  return display_buffer;
 }

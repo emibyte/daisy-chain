@@ -16,11 +16,11 @@ typedef struct TaskChain {
 } task_chain_t;
 
 task_node_t *new_task_node(task_node_t *next, task_t *val);
-void free_task_node(task_node_t *next, task_t *val);
+void free_task_node(task_node_t *node);
 
 task_chain_t *new_chain();
 void free_chain(task_chain_t *chain);
 void add_task(task_chain_t *chain, task_t *task);
-void delete_task(task_chain_t *chain, int id);
-task_t *find_task(int id);
+bool delete_task(task_chain_t *chain, int id);
+task_t *find_task(task_chain_t *chain, int id);
 #endif

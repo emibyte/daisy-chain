@@ -75,4 +75,14 @@ bool delete_task(task_chain_t *chain, int id) {
 }
 
 task_t *find_task(task_chain_t *chain, int id) {
+  if (chain == NULL || chain->head == NULL || id == 0) {
+    return NULL;
+  }
+  task_node_t *cur = chain->head;
+  while (cur == NULL) {
+    if (cur->val->id == id) {
+      return cur->val;
+    }
+  }
+  return NULL;
 }

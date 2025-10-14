@@ -40,6 +40,7 @@ void add_task(task_chain_t *chain, task_t *task) {
     return;
   }
 
+  // NOTE: just have a tail in the chain to append to instead of walking the list
   if (chain->head == NULL) {
     chain->head = node;
   } else {

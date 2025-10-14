@@ -22,7 +22,7 @@ task_t *new_task(int id, char *description, time_t due_date, task_priority prior
   return task;
 }
 
-task_t *edit_task(task_t *task, char *new_description, time_t new_due_date,
+void edit_task(task_t *task, char *new_description, time_t new_due_date,
                   task_priority new_priority, char **new_tags) {
   task->description = strdup(new_description);
   task->due_date = new_due_date;
@@ -30,7 +30,7 @@ task_t *edit_task(task_t *task, char *new_description, time_t new_due_date,
 
   // NOTE: this totally doesnt work, need sth better
   task->tags = new_tags;
-  return NULL;
+  return;
 }
 
 void free_task(task_t *task) {

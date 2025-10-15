@@ -23,4 +23,5 @@ void free_chain(task_chain_t *chain);
 void add_task(task_chain_t *chain, task_t *task);
 bool delete_task(task_chain_t *chain, int id);
 task_t *find_task(task_chain_t *chain, int id);
+
 #endif

@@ -25,7 +25,7 @@ typedef struct Task {
 task_t *new_task(int id, char *description, time_t due_date,
                  task_priority priority, char **tags, int count_tags);
 void edit_task(task_t *task, char *new_description, time_t new_due_date,
-                  task_priority new_priority, char **new_tags);
+               task_priority new_priority, char **new_tags);
 void free_task(task_t *task);
 char *task_repr(task_t *task);
 

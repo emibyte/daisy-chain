@@ -82,7 +82,6 @@ task_t *find_task(task_chain_t *chain, int id) {
     return NULL;
   }
   task_node_t *cur = chain->head;
-  while (cur == NULL) {
   while (cur != NULL) {
     if (cur->val->id == id) {
       return cur->val;
@@ -90,4 +89,13 @@ task_t *find_task(task_chain_t *chain, int id) {
     cur = cur->next;
   }
   return NULL;
+}
+
+void free_chain(task_chain_t *chain) {
+  task_node_t *cur = chain->head;
+  while (cur != NULL) {
+    task_node_t *tmp = cur->next;
+    free_task_node(cur);
+    cur = tmp;
+  }
 }

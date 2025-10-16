@@ -83,9 +83,11 @@ task_t *find_task(task_chain_t *chain, int id) {
   }
   task_node_t *cur = chain->head;
   while (cur == NULL) {
+  while (cur != NULL) {
     if (cur->val->id == id) {
       return cur->val;
     }
+    cur = cur->next;
   }
   return NULL;
 }

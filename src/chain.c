@@ -67,6 +67,7 @@ bool delete_task(task_chain_t *chain, int id) {
       // found it, delete it
       prev->next = cur->next;
       free_task_node(cur);
+      chain->size--;
       return true;
     }
     prev = cur;

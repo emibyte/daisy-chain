@@ -25,11 +25,13 @@
       buildInputs = [pkgs.ncurses pkgs.json_c];
 
       # TODO: write a makefile bcs this will get tedious
-      extraCFlags = "-I${src}/includes";
+      extraCFlags = "-I${src}/includes -I${src}";
 
       buildPhase = ''
         $CC -Wall -O2 -c src/main.c
-        $CC -o daisy-chain main.o -lncurses -ljson-c
+        $CC -Wall -O2 -c src/task.c
+        $CC -Wall -O2 -c src/chain.c
+        $CC -o daisy-chain task.o chain.o main.o -lncurses -ljson-c
       '';
 
       doCheck = true;
@@ -37,8 +39,10 @@
         # compile munit.c together with the test source
         $CC -Wall -O2 -c ${src}/includes/munit/munit.c ${extraCFlags}
         $CC -Wall -O2 -c src/test.c ${extraCFlags}
+        $CC -Wall -O2 -c src/task.c ${extraCFlags}
+        $CC -Wall -O2 -c src/chain.c ${extraCFlags}
 
-        $CC -o test-daisy-chain munit.o test.o -lncurses -ljson-c
+        $CC -o test-daisy-chain munit.o task.o chain.o test.o -lncurses -ljson-c
       '';
 
       installPhase = ''

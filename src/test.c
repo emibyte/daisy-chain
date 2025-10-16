@@ -5,6 +5,7 @@
 #include <string.h>
 
 int main(int argc, char **argv) {
+  // TODO: move this into the header file
   static MunitTest tests[] = {
       {"new_task", test_new_task, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
       {"edit_task", test_edit_task, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -22,6 +23,7 @@ int main(int argc, char **argv) {
       {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
   };
 
+  // TODO: move this into the header file
   static const MunitSuite suite = {
       .prefix = "daisy-chain tests: ",
       .tests = tests,

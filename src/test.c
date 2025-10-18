@@ -16,8 +16,7 @@ int main(int argc, char **argv) {
       {"add_task", test_add_task, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
       {"delete_task", test_delete_task, NULL, NULL, MUNIT_TEST_OPTION_NONE,
        NULL},
-      {"find_task", test_find_task, NULL, NULL, MUNIT_TEST_OPTION_NONE,
-       NULL},
+      {"find_task", test_find_task, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 
       // Terminator of array
       {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -186,8 +185,8 @@ MunitResult test_delete_task(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_find_task(const MunitParameter params[], void
-                           *user_data_or_fixture) {
+MunitResult test_find_task(const MunitParameter params[],
+                           void *user_data_or_fixture) {
   time_t current_time = time(NULL);
   task_chain_t *chain = new_chain();
   task_t *task_a = new_task(1, "task 1", current_time, HIGH, NULL, 0);

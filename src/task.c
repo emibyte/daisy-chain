@@ -1,5 +1,6 @@
 #include "task.h"
-#include <stddef.h>
+#include "json-c/json_object.h"
+#include "json-c/json_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,7 @@ task_t *new_task(int id, char *description, time_t due_date,
     return NULL;
   }
   task->id = id;
-  task->description = strdup(description);
+  task->description = description == NULL ? NULL : strdup(description);
   task->completed = false;
   task->created = time(NULL);
   task->due_date = due_date;
@@ -60,4 +61,58 @@ char *task_repr(task_t *task) {
   sprintf(display_buffer, "%d. - %s - [%c]", task->id, task->description,
           completed);
   return display_buffer;
+}
+
+json_object *to_json(task_t *task) {
+  json_object *json_obj = json_object_new_object();
+
+  json_object_object_add(json_obj, "id", json_object_new_int(task->id));
+  json_object_object_add(json_obj, "description",
+                         json_object_new_string(task->description));
+  json_object_object_add(json_obj, "completed",
+                         json_object_new_boolean(task->completed));
+  json_object_object_add(json_obj, "created",
+                         json_object_new_int64(task->created));
+  json_object_object_add(json_obj, "due_date",
+                         json_object_new_int64(task->due_date));
+  json_object_object_add(json_obj, "priority",
+                         json_object_new_int(task->priority));
+
+  return json_obj;
+}
+
+task_t *from_json(json_object *json_obj) {
+  task_t *task = new_task(0, NULL, 0, 0, NULL, 0);
+  if (task == NULL)
+    return NULL;
+
+  json_object_object_foreach(json_obj, key, val) {
+    switch (json_object_get_type(val)) {
+    case json_type_int:
+      handle_int_vals(key, val, task);
+      break;
+    case json_type_string:
+      task->description = strdup(json_object_get_string(val));
+      break;
+    case json_type_boolean:
+      task->completed = json_object_get_boolean(val);
+      break;
+    default:
+      break;
+    }
+  }
+
+  return task;
+}
+
+void handle_int_vals(const char *key, json_object *json_val, task_t *task) {
+  if (strcmp(key, "id") == 0) {
+    task->id = json_object_get_int(json_val);
+  } else if (strcmp(key, "created") == 0) {
+    task->created = json_object_get_int64(json_val);
+  } else if (strcmp(key, "due_date") == 0) {
+    task->due_date = json_object_get_int64(json_val);
+  } else if (strcmp(key, "priority") == 0) {
+    task->priority = json_object_get_int(json_val);
+  }
 }

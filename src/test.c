@@ -1,7 +1,9 @@
 #include "test.h"
 #include "chain.h"
+#include "json-c/json_tokener.h"
 #include "munit/munit.h"
 #include "task.h"
+#include <stdio.h>
 #include <string.h>
 
 int main(int argc, char **argv) {
@@ -17,6 +19,10 @@ int main(int argc, char **argv) {
       {"delete_task", test_delete_task, NULL, NULL, MUNIT_TEST_OPTION_NONE,
        NULL},
       {"find_task", test_find_task, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+      {"serialize_task", test_serialize_task, NULL, NULL,
+       MUNIT_TEST_OPTION_NONE, NULL},
+      {"deserialize_task", test_deserialize_task, NULL, NULL,
+       MUNIT_TEST_OPTION_NONE, NULL},
 
       // Terminator of array
       {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -202,6 +208,44 @@ MunitResult test_find_task(const MunitParameter params[],
 
   munit_assert_ptr_not_null(task_existing);
   munit_assert_ptr_null(task_non_existing);
+
+  return MUNIT_OK;
+}
+
+MunitResult test_serialize_task(const MunitParameter params[],
+                                void *user_data_or_fixture) {
+  task_t *task = new_task(4, "clean up my desk", 0, MEDIUM, NULL, 0);
+  json_object *json = to_json(task);
+  const char *json_string = json_object_to_json_string(json);
+
+  char expected[256];
+  sprintf(expected,
+          "{ \"id\": 4, \"description\": \"clean up my desk\", \"completed\": "
+          "false, \"created\": %ld, \"due_date\": 0, \"priority\": 1 }",
+          task->created);
+
+  munit_assert_string_equal(json_string, expected);
+
+  return MUNIT_OK;
+}
+
+MunitResult test_deserialize_task(const MunitParameter params[],
+                                  void *user_data_or_fixture) {
+
+  const char *json_string =
+      "{ \"id\": 4, \"description\": \"clean up my desk\", \"completed\": "
+      "true, \"created\": 12345, \"due_date\": 65432, \"priority\": 1 }";
+  json_object *json_obj = json_tokener_parse(json_string);
+  munit_assert_ptr_not_null(json_obj);
+
+  task_t *task = from_json(json_obj);
+  munit_assert_ptr_not_null(task);
+  munit_assert_int(task->id, ==, 4);
+  munit_assert_string_equal(task->description, "clean up my desk");
+  munit_assert(task->completed);
+  munit_assert_int64(task->created, ==, 12345);
+  munit_assert_int64(task->due_date, ==, 65432);
+  munit_assert_int(task->priority, ==, MEDIUM);
 
   return MUNIT_OK;
 }

@@ -19,3 +19,9 @@ MunitResult test_delete_task(const MunitParameter params[],
                              void *user_data_or_fixture);
 MunitResult test_find_task(const MunitParameter params[],
                            void *user_data_or_fixture);
+
+MunitResult test_serialize_task(const MunitParameter params[],
+                                void *user_data_or_fixture);
+
+MunitResult test_deserialize_task(const MunitParameter params[],
+                                  void *user_data_or_fixture);

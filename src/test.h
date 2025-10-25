@@ -25,3 +25,8 @@ MunitResult test_serialize_task(const MunitParameter params[],
 
 MunitResult test_deserialize_task(const MunitParameter params[],
                                   void *user_data_or_fixture);
+
+MunitResult test_serialize_chain(const MunitParameter params[],
+                                 void *user_data_or_fixture);
+MunitResult test_deserialize_chain(const MunitParameter params[],
+                                   void *user_data_or_fixture);

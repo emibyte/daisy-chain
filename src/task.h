@@ -1,7 +1,9 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <json-c/arraylist.h>
 #include <json-c/json_object.h>
+#include <json-c/json_types.h>
 #include <json-c/linkhash.h>
 #include <stdbool.h>
 #include <time.h>
@@ -32,8 +34,8 @@ void edit_task(task_t *task, char *new_description, time_t new_due_date,
 void free_task(task_t *task);
 char *task_repr(task_t *task);
 
-json_object *to_json(task_t *task);
-task_t *from_json(json_object *json);
+json_object *to_json_task(task_t *task);
+task_t *from_json_task(json_object *json);
 
 void handle_int_vals(const char *key, json_object *json_val, task_t *task);
 

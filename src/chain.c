@@ -1,5 +1,7 @@
 #include "chain.h"
+#include "json-c/json_object.h"
 #include "task.h"
+#include <assert.h>
 #include <stdlib.h>
 
 task_node_t *new_task_node(task_node_t *next, task_t *val) {
@@ -98,4 +100,33 @@ void free_chain(task_chain_t *chain) {
     free_task_node(cur);
     cur = tmp;
   }
+}
+
+json_object *to_json_chain(task_chain_t *chain) {
+  json_object *json_chain = json_object_new_array_ext(chain->size);
+
+  for (task_node_t *node = chain->head; node != NULL; node = node->next) {
+    json_object *json_task = to_json_task(node->val);
+    json_object_array_add(json_chain, json_task);
+  }
+
+  return json_chain;
+}
+
+task_chain_t *from_json_chain(json_object *json_chain) {
+  assert(json_object_get_type(json_chain) == json_type_array);
+
+  task_chain_t *chain = new_chain();
+  if (chain == NULL) {
+    return NULL;
+  }
+
+  struct array_list *backing_array = json_object_get_array(json_chain);
+  for (int i = 0; i < backing_array->length; i++) {
+    json_object *json_task = backing_array->array[i];
+    task_t *task = from_json_task(json_task);
+    add_task(chain, task);
+  }
+
+  return chain;
 }

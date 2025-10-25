@@ -1,6 +1,4 @@
 #include "task.h"
-#include "json-c/json_object.h"
-#include "json-c/json_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +61,7 @@ char *task_repr(task_t *task) {
   return display_buffer;
 }
 
-json_object *to_json(task_t *task) {
+json_object *to_json_task(task_t *task) {
   json_object *json_obj = json_object_new_object();
 
   json_object_object_add(json_obj, "id", json_object_new_int(task->id));
@@ -81,7 +79,7 @@ json_object *to_json(task_t *task) {
   return json_obj;
 }
 
-task_t *from_json(json_object *json_obj) {
+task_t *from_json_task(json_object *json_obj) {
   task_t *task = new_task(0, NULL, 0, 0, NULL, 0);
   if (task == NULL)
     return NULL;

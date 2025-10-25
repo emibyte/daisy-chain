@@ -24,4 +24,7 @@ void add_task(task_chain_t *chain, task_t *task);
 bool delete_task(task_chain_t *chain, int id);
 task_t *find_task(task_chain_t *chain, int id);
 
+json_object *to_json_chain(task_chain_t *chain);
+task_chain_t *from_json_chain(json_object *json_chain);
+
 #endif

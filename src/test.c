@@ -331,6 +331,6 @@ MunitResult test_deserialize_chain(const MunitParameter params[],
   munit_assert_int(third_node->val->due_date, ==, 111);
   munit_assert_int(third_node->val->priority, ==, 1);
   munit_assert_string_equal(third_node->val->description, "task 3");
-  
+
   return MUNIT_OK;
 }

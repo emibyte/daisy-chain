@@ -1,10 +1,14 @@
 #include "chain.h"
+#include "files.h"
 #include "json-c/json_object.h"
+#include "json-c/json_tokener.h"
 #include "task.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
-task_node_t *new_task_node(task_node_t *next, task_t *val) {
+task_node_t *
+new_task_node(task_node_t *next, task_t *val) {
   task_node_t *node = malloc(sizeof(task_node_t));
   if (node == NULL) {
     return NULL;
@@ -14,7 +18,8 @@ task_node_t *new_task_node(task_node_t *next, task_t *val) {
   return node;
 }
 
-void free_task_node(task_node_t *node) {
+void
+free_task_node(task_node_t *node) {
   free_task(node->val);
   // NOTE: we dont free next since it is still a relevant node
   //       in the list, so we leave it be and just null the value at that point
@@ -22,17 +27,20 @@ void free_task_node(task_node_t *node) {
   free(node);
 }
 
-task_chain_t *new_chain() {
+task_chain_t *
+new_chain() {
   task_chain_t *chain = malloc(sizeof(task_chain_t));
   if (chain == NULL) {
     return NULL;
   }
   chain->size = 0;
+  chain->next_id = 1;
   chain->head = NULL;
   return chain;
 }
 
-void add_task(task_chain_t *chain, task_t *task) {
+void
+add_task(task_chain_t *chain, task_t *task) {
   if (chain == NULL || task == NULL) {
     return;
   }
@@ -55,9 +63,11 @@ void add_task(task_chain_t *chain, task_t *task) {
   }
 
   chain->size++;
+  chain->next_id = task->id + 1;
 }
 
-bool delete_task(task_chain_t *chain, int id) {
+bool
+delete_task(task_chain_t *chain, int id) {
   if (chain == NULL || chain->head == NULL || id < 1) {
     return false;
   }
@@ -79,7 +89,8 @@ bool delete_task(task_chain_t *chain, int id) {
   return false;
 }
 
-task_t *find_task(task_chain_t *chain, int id) {
+task_t *
+find_task(task_chain_t *chain, int id) {
   if (chain == NULL || chain->head == NULL || id == 0) {
     return NULL;
   }
@@ -93,7 +104,8 @@ task_t *find_task(task_chain_t *chain, int id) {
   return NULL;
 }
 
-void free_chain(task_chain_t *chain) {
+void
+free_chain(task_chain_t *chain) {
   task_node_t *cur = chain->head;
   while (cur != NULL) {
     task_node_t *tmp = cur->next;
@@ -102,7 +114,41 @@ void free_chain(task_chain_t *chain) {
   }
 }
 
-json_object *to_json_chain(task_chain_t *chain) {
+// TODO: aaaaaaaaaaaaaaaaa
+//       this is like a whole mess, since task_repr and chain_repr both allocate
+//       seperately, i dont like it but for now it works since im not sure how
+//       to make it so u just pass in a single buffer into chain repr since u
+//       would need to know the size of the tasks beforehand
+char *
+chain_repr(task_chain_t *chain) {
+  if (chain == NULL || chain->size == 0) {
+    char *empty_chain = malloc(1);
+    empty_chain[0] = '\0';
+    return empty_chain;
+  }
+
+  size_t size_to_allocate =
+      chain->size * 2; // some extra space for newline and maybe extra stuff
+  char *task_repr_array[chain->size];
+  int idx = 0;
+  for (task_node_t *cur = chain->head; cur != NULL; cur = cur->next) {
+    char *repr = task_repr(cur->val);
+    size_to_allocate += strlen(repr);
+    task_repr_array[idx] = repr;
+    idx++;
+  }
+
+  char *buffer = malloc(size_to_allocate);
+  for (int i = 0; i < idx; i++) {
+    strcat(buffer, task_repr_array[i]);
+    strcat(buffer, "\n");
+  }
+
+  return buffer;
+}
+
+json_object *
+to_json_chain(task_chain_t *chain) {
   json_object *json_chain = json_object_new_array_ext(chain->size);
 
   for (task_node_t *node = chain->head; node != NULL; node = node->next) {
@@ -113,7 +159,8 @@ json_object *to_json_chain(task_chain_t *chain) {
   return json_chain;
 }
 
-task_chain_t *from_json_chain(json_object *json_chain) {
+task_chain_t *
+from_json_chain(json_object *json_chain) {
   assert(json_object_get_type(json_chain) == json_type_array);
 
   task_chain_t *chain = new_chain();
@@ -129,4 +176,24 @@ task_chain_t *from_json_chain(json_object *json_chain) {
   }
 
   return chain;
+}
+
+task_chain_t *
+load_task_chain(char *filepath) {
+  const char *contents = read_file(filepath);
+  if (contents == NULL) {
+    return new_chain();
+  }
+
+  json_object *json_chain = json_tokener_parse(contents);
+  task_chain_t *chain = from_json_chain(json_chain);
+  return chain;
+}
+
+bool
+save_task_chain(char *filepath, task_chain_t *chain) {
+  json_object *json_chain = to_json_chain(chain);
+  const char *json_str_chain = json_object_to_json_string(json_chain);
+  size_t length = strlen(json_str_chain);
+  return write_file(filepath, json_str_chain, length);
 }

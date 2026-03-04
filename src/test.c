@@ -5,7 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char **argv) {
+int
+main(int argc, char **argv) {
   // TODO: move this into the header file
   static MunitTest tests[] = {
       {"new_task", test_new_task, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -45,8 +46,8 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-MunitResult test_new_task(const MunitParameter params[],
-                          void *user_data_or_fixture) {
+MunitResult
+test_new_task(const MunitParameter params[], void *user_data_or_fixture) {
   int seconds_day = 60 * 60 * 24;
   time_t current_time = time(NULL);
   task_t *task = new_task(4, "clean up my desk", current_time + seconds_day,
@@ -66,8 +67,8 @@ MunitResult test_new_task(const MunitParameter params[],
   return MUNIT_OK;
 };
 
-MunitResult test_edit_task(const MunitParameter params[],
-                           void *user_data_or_fixture) {
+MunitResult
+test_edit_task(const MunitParameter params[], void *user_data_or_fixture) {
   long seconds_day = 60 * 60 * 24;
   time_t current_time = time(NULL);
   time_t initial_due_date = current_time + seconds_day;
@@ -88,8 +89,8 @@ MunitResult test_edit_task(const MunitParameter params[],
   return MUNIT_OK;
 };
 
-MunitResult test_task_repr(const MunitParameter params[],
-                           void *user_data_or_fixture) {
+MunitResult
+test_task_repr(const MunitParameter params[], void *user_data_or_fixture) {
   long seconds_day = 60 * 60 * 24;
   time_t current_time = time(NULL);
   task_t *task = new_task(4, "clean up my desk", current_time + seconds_day,
@@ -105,8 +106,8 @@ MunitResult test_task_repr(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_new_task_node(const MunitParameter params[],
-                               void *user_data_or_fixture) {
+MunitResult
+test_new_task_node(const MunitParameter params[], void *user_data_or_fixture) {
   long seconds_day = 60 * 60 * 24;
   time_t current_time = time(NULL);
   task_t *task = new_task(4, "clean up my desk", current_time + seconds_day,
@@ -121,8 +122,8 @@ MunitResult test_new_task_node(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_new_chain(const MunitParameter params[],
-                           void *user_data_or_fixture) {
+MunitResult
+test_new_chain(const MunitParameter params[], void *user_data_or_fixture) {
   task_chain_t *chain = new_chain();
 
   munit_assert_int(chain->size, ==, 0);
@@ -133,8 +134,8 @@ MunitResult test_new_chain(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_add_task(const MunitParameter params[],
-                          void *user_data_or_fixture) {
+MunitResult
+test_add_task(const MunitParameter params[], void *user_data_or_fixture) {
   time_t current_time = time(NULL);
   task_chain_t *chain = new_chain();
   task_t *task_a = new_task(1, "task 1", current_time, HIGH, NULL, 0);
@@ -171,8 +172,8 @@ MunitResult test_add_task(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_delete_task(const MunitParameter params[],
-                             void *user_data_or_fixture) {
+MunitResult
+test_delete_task(const MunitParameter params[], void *user_data_or_fixture) {
   time_t current_time = time(NULL);
   task_chain_t *chain = new_chain();
   task_t *task_a = new_task(1, "task 1", current_time, HIGH, NULL, 0);
@@ -194,8 +195,8 @@ MunitResult test_delete_task(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_find_task(const MunitParameter params[],
-                           void *user_data_or_fixture) {
+MunitResult
+test_find_task(const MunitParameter params[], void *user_data_or_fixture) {
   time_t current_time = time(NULL);
   task_chain_t *chain = new_chain();
   task_t *task_a = new_task(1, "task 1", current_time, HIGH, NULL, 0);
@@ -215,8 +216,8 @@ MunitResult test_find_task(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_serialize_task(const MunitParameter params[],
-                                void *user_data_or_fixture) {
+MunitResult
+test_serialize_task(const MunitParameter params[], void *user_data_or_fixture) {
   task_t *task = new_task(4, "clean up my desk", 0, MEDIUM, NULL, 0);
   json_object *json = to_json_task(task);
   const char *json_string = json_object_to_json_string(json);
@@ -232,8 +233,9 @@ MunitResult test_serialize_task(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_deserialize_task(const MunitParameter params[],
-                                  void *user_data_or_fixture) {
+MunitResult
+test_deserialize_task(const MunitParameter params[],
+                      void *user_data_or_fixture) {
 
   const char *json_string =
       "{ \"id\": 4, \"description\": \"clean up my desk\", \"completed\": "
@@ -253,8 +255,9 @@ MunitResult test_deserialize_task(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_serialize_chain(const MunitParameter params[],
-                                 void *user_data_or_fixture) {
+MunitResult
+test_serialize_chain(const MunitParameter params[],
+                     void *user_data_or_fixture) {
   char expected_a[128];
   char expected_b[128];
   char expected_c[128];
@@ -292,8 +295,9 @@ MunitResult test_serialize_chain(const MunitParameter params[],
   return MUNIT_OK;
 }
 
-MunitResult test_deserialize_chain(const MunitParameter params[],
-                                   void *user_data_or_fixture) {
+MunitResult
+test_deserialize_chain(const MunitParameter params[],
+                       void *user_data_or_fixture) {
   const char *json_chain_string =
       "[ { \"id\": 1, \"description\": \"task 1\", \"completed\": "
       "false, \"created\": 321, \"due_date\": 555, \"priority\": 2 }, { "

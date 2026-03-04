@@ -1,5 +1,5 @@
 {
-  description = "ncurses app with bundled munit";
+  description = "a little cli todo thingy";
 
   inputs = {
     self.submodules = true;
@@ -14,7 +14,7 @@
   in {
     formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.alejandra;
     devShells.x86_64-linux.default = pkgs.mkShell {
-      buildInputs = with pkgs; [gcc ncurses json_c clang-tools valgrind];
+      buildInputs = with pkgs; [gcc json_c clang-tools valgrind];
     };
 
     packages.x86_64-linux.default = pkgs.stdenv.mkDerivation rec {
@@ -22,16 +22,18 @@
       version = "0.1.0";
 
       src = ./.; # whole project directory
-      buildInputs = [pkgs.ncurses pkgs.json_c];
+      buildInputs = [pkgs.json_c];
 
-      # TODO: write a makefile bcs this will get tedious
+      # NOTE: write a makefile bcs this will get tedious (it actually did not get tedious)
       extraCFlags = "-I${src}/includes -I${src}";
 
       buildPhase = ''
-        $CC -Wall -O2 -c src/main.c
+        $CC -Wall -O2 -c src/main_cli.c
         $CC -Wall -O2 -c src/task.c
         $CC -Wall -O2 -c src/chain.c
-        $CC -o daisy-chain task.o chain.o main.o -lncurses -ljson-c
+        $CC -Wall -O2 -c src/files.c
+        $CC -Wall -O2 -c src/cmd_parser.c
+        $CC -o daisy-chain task.o chain.o files.o cmd_parser.o main_cli.o -ljson-c
       '';
 
       doCheck = true;
@@ -41,8 +43,10 @@
         $CC -Wall -O2 -c src/test.c ${extraCFlags}
         $CC -Wall -O2 -c src/task.c ${extraCFlags}
         $CC -Wall -O2 -c src/chain.c ${extraCFlags}
+        $CC -Wall -O2 -c src/files.c ${extraCFlags}
+        $CC -Wall -O2 -c src/cmd_parser.c ${extraCFlags}
 
-        $CC -o test-daisy-chain munit.o task.o chain.o test.o -lncurses -ljson-c
+        $CC -o test-daisy-chain munit.o task.o chain.o files.o cmd_parser.o test.o -ljson-c
       '';
 
       installPhase = ''

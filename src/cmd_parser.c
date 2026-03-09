@@ -7,8 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *valid_commands[] = {"list", "add", "remove", "help", "edit", "done"};
-char *valid_commands_short[] = {"-l", "-a", "-r", "-h", "-e", "-d"};
+char *valid_commands[] = {"list", "add",  "remove", "help",
+                          "edit", "done", "undone"};
+char *valid_commands_short[] = {"-l", "-a", "-r", "-h", "-e", "-d", "-u"};
 
 bool
 translate_short_cmd(const char *short_cmd_str, char *cmd_str) {
@@ -138,6 +139,8 @@ parse_cmd(char *cmd_str, char **argv, int argc, cmd_t *cmd) {
     cmd_arg_count = HELP_ARGUMENTS_COUNT;
   } else if (strcmp(cmd_str, "done") == 0) {
     cmd_arg_count = DONE_ARGUMENTS_COUNT;
+  } else if (strcmp(cmd_str, "undone") == 0) {
+    cmd_arg_count = UNDONE_ARGUMENTS_COUNT;
   }
 
   if (argc > cmd_arg_count + 2) {
@@ -226,7 +229,8 @@ run_help_cmd() {
 }
 
 int
-run_done_cmd(task_chain_t *chain, property_value_pair_array_t *props) {
+run_completion_cmd(task_chain_t *chain, property_value_pair_array_t *props,
+                   bool val) {
   int id_to_mark_as_done = props->pairs[props->id_index].id;
   if (id_to_mark_as_done == 0) {
     fprintf(stderr, "Error: the supplied id to remove is not an integer\n");
@@ -237,10 +241,11 @@ run_done_cmd(task_chain_t *chain, property_value_pair_array_t *props) {
     fprintf(stderr, "Error: task with given id does not exist\n");
     return 5;
   }
-  if (!task->completed) {
-    task->completed = true;
+  if (task->completed != val) {
+    task->completed = val;
   } else {
-    fprintf(stderr, "Error: task with given id is already completed\n");
+    fprintf(stderr, "Error: task with given id is already %s\n",
+            val ? "completed" : "uncompleted");
   }
   return 0;
 }

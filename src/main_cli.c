@@ -62,7 +62,9 @@ main(int argc, char **argv) {
   } else if (strcmp(cmd.command, "help") == 0) {
     run_help_cmd();
   } else if (strcmp(cmd.command, "done") == 0) {
-    run_done_cmd(chain, &props);
+    run_completion_cmd(chain, &props, true);
+  } else if (strcmp(cmd.command, "undone") == 0) {
+    run_completion_cmd(chain, &props, false);
   }
 
   printf("error code: %d\n", error_code);

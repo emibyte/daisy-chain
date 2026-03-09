@@ -12,8 +12,9 @@
 #define EDIT_ARGUMENTS_COUNT_MAX 4 // id, description, due_date, priority
 #define HELP_ARGUMENTS_COUNT 1     // cmd to provide help for
 #define DONE_ARGUMENTS_COUNT 1     // id of task to mark as done
+#define UNDONE_ARGUMENTS_COUNT 1   // id of task to mark as done
 
-#define VALID_COMMANDS_COUNT 6
+#define VALID_COMMANDS_COUNT 7
 extern char *valid_commands[];
 extern char *valid_commands_short[];
 
@@ -79,6 +80,7 @@ run_edit_cmd(task_chain_t *chain, property_value_pair_array_t *props);
 void
 run_help_cmd();
 int
-run_done_cmd(task_chain_t *chain, property_value_pair_array_t *props);
+run_completion_cmd(task_chain_t *chain, property_value_pair_array_t *props,
+                   bool val);
 
 #endif

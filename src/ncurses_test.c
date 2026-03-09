@@ -1,7 +1,8 @@
 #include <ncurses.h>
 #include <string.h>
 
-// NOTE: this doesnt work, just a barebones structure for an ncurses version of a tui i might build
+// NOTE: this doesnt work, just a barebones structure for an ncurses version of
+// a tui i might build
 int
 main(void) {
   int row, col;

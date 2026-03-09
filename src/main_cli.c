@@ -61,7 +61,10 @@ main(int argc, char **argv) {
     run_edit_cmd(chain, &props);
   } else if (strcmp(cmd.command, "help") == 0) {
     run_help_cmd();
+  } else if (strcmp(cmd.command, "done") == 0) {
+    run_done_cmd(chain, &props);
   }
+
   printf("error code: %d\n", error_code);
   bool success = save_task_chain(tasks_path, chain);
   free_chain(chain);

@@ -1,12 +1,14 @@
 #include "cmd_parser.h"
 #include "chain.h"
 #include "task.h"
+#include "utils.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-char *valid_commands[] = {"list", "add", "remove", "help", "edit"};
-char *valid_commands_short[] = {"-l", "-a", "-r", "-h", "e"};
+char *valid_commands[] = {"list", "add", "remove", "help", "edit", "done"};
+char *valid_commands_short[] = {"-l", "-a", "-r", "-h", "-e", "-d"};
 
 bool
 translate_short_cmd(const char *short_cmd_str, char *cmd_str) {
@@ -37,10 +39,15 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
     bool hit_equal = false;
     int cur_idx_prop = 0;
     int cur_idx_value = 0;
-    char prop_literal[5];
-    char value_literal[256]; // NOTE: probably needs its own type for parsing
-                             // since it can be an int a string or a priority
+    char prop_literal[256];
+    char value_literal[256];
     for (char *cur = arg; *cur != '\0'; ++cur) {
+      if (cur_idx_prop > 254 || cur_idx_value > 254) {
+        fprintf(stderr, "Error: property name or value was too long, limit is "
+                        "255 characters.\n");
+        return 10;
+      }
+
       if (*cur == '=' && hit_equal) {
         // TODO: multiple equal signs, sth is very wrong!!
         break;
@@ -60,12 +67,20 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
       }
     }
 
-    if (!hit_equal || cur_idx_value == 0) {
-      return 7;
-    }
-
     prop_literal[cur_idx_prop] = '\0';
     value_literal[cur_idx_value] = '\0';
+
+    if (!hit_equal || cur_idx_value == 0) {
+      // NOTE: if just a single value, treat it as an id
+      bool is_number = is_integer(prop_literal);
+      if (is_number && cmd.args_count == 1) {
+        strcpy(value_literal, prop_literal);
+        prop_literal[0] = '\0';
+      } else {
+        return 7;
+      }
+    }
+
     property_t prop = DESCRIPTION;
     value_kind_t value = STRING;
     if (strcmp(prop_literal, "due") == 0) {
@@ -75,6 +90,10 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
       prop = PRIORITY;
       value = INT;
     } else if (strcmp(prop_literal, "id") == 0) {
+      prop = ID;
+      value = INT;
+    } else if (strlen(prop_literal) == 0) {
+      // NOTE: we land here if we found only one number
       prop = ID;
       value = INT;
     }
@@ -117,6 +136,8 @@ parse_cmd(char *cmd_str, char **argv, int argc, cmd_t *cmd) {
     cmd_arg_count = EDIT_ARGUMENTS_COUNT_MAX;
   } else if (strcmp(cmd_str, "help") == 0) {
     cmd_arg_count = HELP_ARGUMENTS_COUNT;
+  } else if (strcmp(cmd_str, "done") == 0) {
+    cmd_arg_count = DONE_ARGUMENTS_COUNT;
   }
 
   if (argc > cmd_arg_count + 2) {
@@ -201,5 +222,25 @@ run_edit_cmd(task_chain_t *chain, property_value_pair_array_t *props) {
 void
 run_help_cmd() {
   // TODO: implement
-  printf("lowkey haven't written the text.");
+  printf("lowkey haven't written the text.\n");
+}
+
+int
+run_done_cmd(task_chain_t *chain, property_value_pair_array_t *props) {
+  int id_to_mark_as_done = props->pairs[props->id_index].id;
+  if (id_to_mark_as_done == 0) {
+    fprintf(stderr, "Error: the supplied id to remove is not an integer\n");
+    return 4;
+  }
+  task_t *task = find_task(chain, id_to_mark_as_done);
+  if (task == NULL) {
+    fprintf(stderr, "Error: task with given id does not exist\n");
+    return 5;
+  }
+  if (!task->completed) {
+    task->completed = true;
+  } else {
+    fprintf(stderr, "Error: task with given id is already completed\n");
+  }
+  return 0;
 }

@@ -33,7 +33,8 @@
         $CC -Wall -O2 -c src/chain.c
         $CC -Wall -O2 -c src/files.c
         $CC -Wall -O2 -c src/cmd_parser.c
-        $CC -o daisy-chain task.o chain.o files.o cmd_parser.o main_cli.o -ljson-c
+        $CC -Wall -O2 -c src/utils.c
+        $CC -o daisy-chain task.o chain.o files.o cmd_parser.o utils.o main_cli.o -ljson-c
       '';
 
       doCheck = true;
@@ -45,8 +46,9 @@
         $CC -Wall -O2 -c src/chain.c ${extraCFlags}
         $CC -Wall -O2 -c src/files.c ${extraCFlags}
         $CC -Wall -O2 -c src/cmd_parser.c ${extraCFlags}
+        $CC -Wall -O2 -c src/utils.c ${extraCFlags}
 
-        $CC -o test-daisy-chain munit.o task.o chain.o files.o cmd_parser.o test.o -ljson-c
+        $CC -o test-daisy-chain munit.o task.o chain.o files.o cmd_parser.o utils.o test.o -ljson-c
       '';
 
       installPhase = ''

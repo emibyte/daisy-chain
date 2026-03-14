@@ -97,7 +97,7 @@ test_task_repr(const MunitParameter params[], void *user_data_or_fixture) {
                           MEDIUM, NULL, 0);
 
   char *expected = "4. - clean up my desk - [ ]";
-  char *actual = task_repr(task);
+  char *actual = task_repr(task, 4);
 
   munit_assert_string_equal(expected, actual);
 

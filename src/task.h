@@ -36,7 +36,7 @@ edit_task(task_t *task, char *new_description, time_t new_due_date,
 void
 free_task(task_t *task);
 char *
-task_repr(task_t *task);
+task_repr(task_t *task, int cur_max_id);
 
 json_object *
 to_json_task(task_t *task);

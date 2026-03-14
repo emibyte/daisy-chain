@@ -1,4 +1,5 @@
 #include "task.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +7,8 @@
 // prototype for static function (not in header since that makes no sense)
 static void
 handle_int_vals(const char *key, json_object *json_val, task_t *task);
+
+const char *priority_names[] = {"Low", "Medium", "High"};
 
 task_t *
 new_task(int id, char *description, time_t due_date, task_priority priority,
@@ -57,16 +60,30 @@ free_task(task_t *task) {
 }
 
 char *
-task_repr(task_t *task) {
-  int size_of_priority = task->priority;
-  int size_to_allocate = strlen(task->description) + 20;
+task_repr(task_t *task, int cur_max_id) {
+  int max_size_priority = 6; // "Medium"
+  int size_of_priority = strlen(priority_names[task->priority]);
+  int align_whitespace_after_prio = max_size_priority - size_of_priority;
+  char whitespace_alignment_prio[align_whitespace_after_prio + 1];
+  strnconcat(' ', align_whitespace_after_prio, whitespace_alignment_prio,
+             align_whitespace_after_prio + 1);
+
+  int max_size_id = get_digit_count(cur_max_id);
+  int size_of_id = get_digit_count(task->id);
+  int align_whitespace_after_id = max_size_id - size_of_id;
+  char whitespace_alignment_id[align_whitespace_after_id + 1];
+  strnconcat(' ', align_whitespace_after_id, whitespace_alignment_id,
+             align_whitespace_after_prio + 1);
+
+  int size_to_allocate = strlen(task->description) + size_of_priority + 50;
   char *display_buffer = malloc(size_to_allocate * sizeof(char));
   if (display_buffer == NULL) {
     return NULL;
   }
   char completed = task->completed ? 'x' : ' ';
-  sprintf(display_buffer, "%d. - %s - [%c]", task->id, task->description,
-          completed);
+  sprintf(display_buffer, "ID: %d%s, Priority: %s%s - Status: [%c] - %s", task->id,
+          whitespace_alignment_id, priority_names[task->priority],
+          whitespace_alignment_prio, completed, task->description);
   return display_buffer;
 }
 

@@ -132,7 +132,7 @@ chain_repr(task_chain_t *chain) {
   char *task_repr_array[chain->size];
   int idx = 0;
   for (task_node_t *cur = chain->head; cur != NULL; cur = cur->next) {
-    char *repr = task_repr(cur->val);
+    char *repr = task_repr(cur->val, chain->next_id - 1);
     size_to_allocate += strlen(repr);
     task_repr_array[idx] = repr;
     idx++;

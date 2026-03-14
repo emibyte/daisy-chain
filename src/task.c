@@ -80,9 +80,10 @@ task_repr(task_t *task, int cur_max_id) {
   if (display_buffer == NULL) {
     return NULL;
   }
+
   char completed = task->completed ? 'x' : ' ';
-  sprintf(display_buffer, "ID: %d%s, Priority: %s%s - Status: [%c] - %s", task->id,
-          whitespace_alignment_id, priority_names[task->priority],
+  sprintf(display_buffer, "ID: %d%s, Priority: %s%s - Status: [%c] - %s",
+          task->id, whitespace_alignment_id, priority_names[task->priority],
           whitespace_alignment_prio, completed, task->description);
   return display_buffer;
 }

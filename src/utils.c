@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <string.h>
@@ -14,4 +15,29 @@ is_integer(const char *str) {
     }
   }
   return (idx > 0);
+}
+
+void
+strnconcat(char ch, size_t n, char *result, size_t result_size) {
+  assert(n < result_size);
+  int i = 0;
+  for (; i < n; i++) {
+    result[i] = ch;
+  }
+
+  result[i] = '\0';
+}
+
+int
+get_digit_count(int n) {
+  int count = 0;
+  if (n == 0)
+    return 1;
+
+  for (; n != 0;) {
+    n /= 10;
+    count++;
+  }
+
+  return count;
 }

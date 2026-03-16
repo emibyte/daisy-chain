@@ -13,12 +13,21 @@ main(int argc, char **argv) {
     // TODO: Errorcode enum
     return 1;
   }
+  for (int i = 0; i < argc; i++) {
+    printf("%s\n", argv[i]);
+  }
 
   char path[256] = {0};
   char *tasks_path = get_task_file_path(path);
 
-  char *cmd_str = argv[1];
-  bool was_short_cmd = translate_short_cmd(cmd_str, cmd_str);
+  char cmd_str[256];
+
+  int cmd_trans_idx = translate_short_cmd(argv[1]);
+  if (cmd_trans_idx >= 0) {
+    strcpy(cmd_str, valid_commands[cmd_trans_idx]);
+  } else {
+    strcpy(cmd_str, argv[1]);
+  }
 
   for (int i = 0; i < strlen(cmd_str); i++) {
     cmd_str[i] = tolower(cmd_str[i]);

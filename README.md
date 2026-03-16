@@ -22,13 +22,13 @@ The library `json-c` is used by the program and thus needs to be installed on ur
 
 Tests are written using `munit` and the test executable can be build via the following commands:
 ```bash
-gcc -Wall -O2 -c ${src}/includes/munit/munit.c -I./includes
-gcc -Wall -O2 -c src/test.c -I./includes
-gcc -Wall -O2 -c src/task.c -I./includes
-gcc -Wall -O2 -c src/chain.c -I./includes
-gcc -Wall -O2 -c src/files.c -I./includes
-gcc -Wall -O2 -c src/cmd_parser.c -I./includes
-gcc -Wall -O2 -c src/utils.c -I./includes
+gcc -Wall -O2 -c ./includes/munit/munit.c -Iincludes
+gcc -Wall -O2 -c src/test.c -Iincludes
+gcc -Wall -O2 -c src/task.c -Iincludes
+gcc -Wall -O2 -c src/chain.c -Iincludes
+gcc -Wall -O2 -c src/files.c -Iincludes
+gcc -Wall -O2 -c src/cmd_parser.c -Iincludes
+gcc -Wall -O2 -c src/utils.c -Iincludes
 
 gcc -o test-daisy-chain munit.o task.o chain.o files.o cmd_parser.o utils.o test.o -ljson-c
 ```

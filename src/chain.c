@@ -1,4 +1,5 @@
 #include "chain.h"
+#include "cmd_parser.h"
 #include "files.h"
 #include "json-c/json_object.h"
 #include "json-c/json_tokener.h"
@@ -133,6 +134,53 @@ chain_repr(task_chain_t *chain) {
   int idx = 0;
   for (task_node_t *cur = chain->head; cur != NULL; cur = cur->next) {
     char *repr = task_repr(cur->val, chain->next_id - 1);
+    size_to_allocate += strlen(repr);
+    task_repr_array[idx] = repr;
+    idx++;
+  }
+
+  char *buffer = malloc(size_to_allocate);
+  for (int i = 0; i < idx; i++) {
+    strcat(buffer, task_repr_array[i]);
+    strcat(buffer, "\n");
+  }
+
+  return buffer;
+}
+
+char *
+chain_repr_filtered(task_chain_t *chain, cmd_option_t option) {
+  if (chain == NULL || chain->size == 0) {
+    char *empty_chain = malloc(1);
+    empty_chain[0] = '\0';
+    return empty_chain;
+  }
+
+  int capacity = chain->size;
+  int size = 0;
+  task_node_t *filtered_nodes[capacity];
+  for (task_node_t *cur = chain->head; cur != NULL; cur = cur->next) {
+    if (option.filter.filter_kind == FILTER_PRIORITY) {
+      if (cur->val->priority == option.filter.prio) {
+        filtered_nodes[size] = cur;
+        size++;
+      }
+    } else if (option.filter.filter_kind == FILTER_DESCRIPTION) {
+      bool description_matches =
+          strcmp(cur->val->description, option.filter.description) == 0;
+      if (description_matches) {
+        filtered_nodes[size] = cur;
+        size++;
+      }
+    }
+  }
+
+  size_t size_to_allocate =
+      chain->size * 2; // some extra space for newline and maybe extra stuff
+  char *task_repr_array[size];
+  int idx = 0;
+  for (int i = 0; i < size; i++) {
+    char *repr = task_repr(filtered_nodes[i]->val, chain->next_id - 1);
     size_to_allocate += strlen(repr);
     task_repr_array[idx] = repr;
     idx++;

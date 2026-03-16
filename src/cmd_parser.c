@@ -9,17 +9,18 @@
 
 char *valid_commands[] = {"list", "add",  "remove", "help",
                           "edit", "done", "undone"};
-char *valid_commands_short[] = {"-l", "-a", "-r", "-h", "-e", "-d", "-u"};
+char *valid_commands_short[] = {"l", "a", "r", "h", "e", "d", "u"};
+char *priority_names_for_filter_id[] = {"low", "medium", "high", "l", "m",
+                                        "h",   "0",      "1",    "2"};
 
-bool
-translate_short_cmd(const char *short_cmd_str, char *cmd_str) {
+int
+translate_short_cmd(const char *short_cmd_str) {
   for (int i = 0; i < VALID_COMMANDS_COUNT; i++) {
     if (strcmp(valid_commands_short[i], short_cmd_str) == 0) {
-      cmd_str = valid_commands[i];
-      return true;
+      return i;
     }
   }
-  return false;
+  return -1;
 }
 
 bool
@@ -99,16 +100,18 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
       value = INT;
     }
 
-    if (prop == ID) {
+    props->pairs[i].kind = value;
+    props->pairs[i].prop_literal = prop_literal;
+    if (prop == ID && value == INT) {
       props->pairs[i].id = strtol(value_literal, NULL, 10);
       props->id_index = i;
-    } else if (prop == DESCRIPTION) {
+    } else if (prop == DESCRIPTION && value == STRING) {
       props->pairs[i].description = value_literal;
       props->description_index = i;
-    } else if (prop == DUE_DATE) {
+    } else if (prop == DUE_DATE && value == INT) {
       props->pairs[i].due_in_days = strtol(value_literal, NULL, 10);
       props->due_date_index = i;
-    } else if (prop == PRIORITY) {
+    } else if (prop == PRIORITY && value == INT) {
       props->priority_index = i;
       if (strcmp(value_literal, "low") == 0) {
         props->pairs[i].priority = LOW;
@@ -129,6 +132,7 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
 int
 parse_cmd(char *cmd_str, char **argv, int argc, cmd_t *cmd) {
   int cmd_arg_count = 0;
+  int list_opt_argc = 0;
   if (strcmp(cmd_str, "add") == 0) {
     cmd_arg_count = ADD_ARGUMENTS_COUNT;
   } else if (strcmp(cmd_str, "remove") == 0) {
@@ -141,35 +145,84 @@ parse_cmd(char *cmd_str, char **argv, int argc, cmd_t *cmd) {
     cmd_arg_count = DONE_ARGUMENTS_COUNT;
   } else if (strcmp(cmd_str, "undone") == 0) {
     cmd_arg_count = UNDONE_ARGUMENTS_COUNT;
+  } else if (strcmp(cmd_str, "list") == 0) {
+    list_opt_argc = LIST_OPT_ARGC;
   }
 
-  if (argc > cmd_arg_count + 2) {
+  if (argc > cmd_arg_count + 2 + list_opt_argc) {
     printf("Error: wrong number of arguments provided\n");
     // TODO: Errorcode enum, return an error value from this function!!!
     return 3;
   }
 
   char **args = malloc((argc - 2) * sizeof(char *));
+  bool found_opt = false;
   for (int i = 2; i < argc; i++) {
+    if (found_opt) {
+      found_opt = false;
+      continue;
+    }
+
     char *arg = argv[i];
-    args[i - 2] = arg;
+    if (startswith(arg, '-')) {
+      // TODO: parse "-f 'prio'" correctly
+      found_opt = true;
+      if (arg[1] == 'f' && strlen(arg) == 2) {
+        cmd->option.kind = FILTER;
+        cmd->option.is_valid = true;
+
+        if (i == argc - 1) {
+          fprintf(stderr, "Error: did not provide a term to filter by");
+          return 1;
+        }
+
+        char *filter_by = argv[i + 1];
+        int idx = -1;
+        for (int i = 0; i < VALID_PRIORITY_FILTER_VALUES; i++) {
+          if (strcmp(filter_by, priority_names_for_filter_id[i]) == 0) {
+            idx = i;
+            break;
+          }
+        }
+
+        if (idx >= 0) {
+          cmd->option.filter.filter_kind = FILTER_PRIORITY;
+          cmd->option.filter.prio = (task_priority)(idx % 3);
+        } else {
+          cmd->option.filter.filter_kind = FILTER_DESCRIPTION;
+          cmd->option.filter.description = filter_by;
+        }
+      }
+    }
+
+    if (!found_opt) {
+      args[i - 2] = arg;
+    }
   }
   cmd->command = cmd_str;
   cmd->args_count = cmd_arg_count;
   cmd->args = args;
+
   return 0;
 }
 
 void
-run_list_cmd(task_chain_t *chain) {
-  char *tasks = chain_repr(chain);
-  if (strlen(tasks) == 0) {
-    printf("Your chain is still empty, feel free to add some tasks :3\n");
+run_list_cmd(task_chain_t *chain, cmd_option_t option) {
+  // TODO: fix duplicated code, not sure how right now tho :c
+  if (option.kind == FILTER && option.is_valid) {
+    char *tasks = chain_repr_filtered(chain, option);
+    strlen(tasks) == 0 ? printf("nothing satisfiying the filter was found :3\n")
+                       : printf("%s", tasks);
+    free(tasks);
   } else {
-    printf("%s", tasks);
+    char *tasks = chain_repr(chain);
+    strlen(tasks) == 0
+        ? printf("Your chain is still empty, feel free to add some tasks :3\n")
+        : printf("%s", tasks);
+    free(tasks);
   }
-  free(tasks);
 }
+
 void
 run_add_cmd(task_chain_t *chain, property_value_pair_array_t *props) {
   task_t *task = new_task(

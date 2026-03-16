@@ -1,7 +1,10 @@
 #ifndef CHAIN_H
 #define CHAIN_H
 
+#include "cmd_parser.h"
 #include "task.h"
+
+typedef struct Option cmd_option_t;
 
 typedef struct TaskNode task_node_t;
 
@@ -33,6 +36,8 @@ task_t *
 find_task(task_chain_t *chain, int id);
 char *
 chain_repr(task_chain_t *chain);
+char *
+chain_repr_filtered(task_chain_t *chain, cmd_option_t option);
 
 json_object *
 to_json_chain(task_chain_t *chain);

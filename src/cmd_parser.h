@@ -1,9 +1,10 @@
 #ifndef CMD_PARSER_H
 #define CMD_PARSER_H
 
-#include "chain.h"
 #include "task.h"
 #include <stdbool.h>
+
+typedef struct TaskChain task_chain_t;
 
 // TODO: eventually list command will also need args (for filter functionality)
 #define ADD_ARGUMENTS_COUNT 3      // description, due_date (in days), priority
@@ -14,9 +15,43 @@
 #define DONE_ARGUMENTS_COUNT 1     // id of task to mark as done
 #define UNDONE_ARGUMENTS_COUNT 1   // id of task to mark as done
 
+#define LIST_OPT_ARGC                                                          \
+  2 * 1 // list cmd is allowed one option, which consists of two args -f and
+        // 'filter' filtering!
+
+#define VALID_PRIORITY_FILTER_VALUES 9
 #define VALID_COMMANDS_COUNT 7
 extern char *valid_commands[];
 extern char *valid_commands_short[];
+
+typedef enum OptionKind {
+  INVALID,
+  FILTER,
+} cmd_option_kind;
+
+// NOTE: for now we assume that if a value like l, m, h or low medium high is
+// used its meant to filter by priority other wise we assume it meant to filter
+// by description
+typedef enum FilterBy {
+  FILTER_DESCRIPTION,
+  FILTER_PRIORITY,
+} filter_by;
+
+typedef struct FilterObject {
+  filter_by filter_kind;
+  union {
+    char *description;
+    task_priority prio;
+  };
+} filter_object_t;
+
+typedef struct Option {
+  cmd_option_kind kind;
+  bool is_valid;
+  union {
+    filter_object_t filter;
+  };
+} cmd_option_t;
 
 typedef enum ValueKind {
   STRING,
@@ -59,10 +94,11 @@ typedef struct Command {
   char *command;
   int args_count;
   char **args;
+  cmd_option_t option;
 } cmd_t;
 
-bool
-translate_short_cmd(const char *short_cmd_str, char *cmd_str);
+int
+translate_short_cmd(const char *short_cmd_str);
 bool
 is_cmd_valid(const char *cmd_str);
 int
@@ -70,7 +106,7 @@ parse_cmd(char *cmd_str, char **argv, int argc, cmd_t *cmd);
 int
 parse_property_values(cmd_t cmd, property_value_pair_array_t *props);
 void
-run_list_cmd(task_chain_t *chain);
+run_list_cmd(task_chain_t *chain, cmd_option_t option);
 void
 run_add_cmd(task_chain_t *chain, property_value_pair_array_t *props);
 int

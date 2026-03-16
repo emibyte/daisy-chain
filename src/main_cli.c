@@ -60,7 +60,7 @@ main(int argc, char **argv) {
   task_chain_t *chain = load_task_chain(tasks_path);
   // NOTE: execute the command
   if (strcmp(cmd.command, "list") == 0) {
-    run_list_cmd(chain);
+    run_list_cmd(chain, cmd.option);
   } else if (strcmp(cmd.command, "add") == 0) {
     run_add_cmd(chain, &props);
   } else if (strcmp(cmd.command, "remove") == 0) {

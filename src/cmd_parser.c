@@ -277,8 +277,15 @@ run_edit_cmd(task_chain_t *chain, property_value_pair_array_t *props) {
 
 void
 run_help_cmd() {
-  // TODO: implement
-  printf("lowkey haven't written the text.\n");
+  // TODO: would probably be kinda nice if this was generated from code instead of just straight up written, but that seems like overkill idk, cool tho
+  printf("The following commands with he supplied arguments can be used with he daisy chain cli:\n");
+  printf("\n");
+  printf("list [-f 'h'/'HIGH'/'text']                                         --- list tasks, -f 'text' for filtering\n");
+  printf("add    desc='description' due=[days until due] prio=low/medium/high --- adds a task to the chain\n");
+  printf("remove id=[number]                                                  --- remove a task\n");
+  printf("done   id=[number]                                                  --- mark a task as done\n");
+  printf("undone id=[number]                                                  --- mark task as not done\n");
+  printf("edit   id=[number] [desc='new desc'] [due=new_due] [prio=new_prio]  --- edit a task\n");
 }
 
 int

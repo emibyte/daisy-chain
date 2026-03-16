@@ -168,6 +168,12 @@ chain_repr_filtered(task_chain_t *chain, cmd_option_t option) {
     } else if (option.filter.filter_kind == FILTER_DESCRIPTION) {
       bool description_matches =
           strcmp(cur->val->description, option.filter.description) == 0;
+      if (!description_matches) {
+        description_matches =
+            strstr(cur->val->description, option.filter.description) == NULL
+                ? false
+                : true;
+      }
       if (description_matches) {
         filtered_nodes[size] = cur;
         size++;

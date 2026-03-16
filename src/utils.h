@@ -13,6 +13,6 @@ get_digit_count(int n);
 bool
 startswith(const char *str, char ch);
 bool
-startswithsubstring(const char *str, const char* substr);
+startswithsubstring(const char *str, const char *substr);
 
 #endif

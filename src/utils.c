@@ -51,7 +51,8 @@ bool
 startswithsubstring(const char *str, const char *substr) {
   int len_sub = strlen(substr);
   int len = strlen(str);
-  if (len_sub > len) return false;
+  if (len_sub > len)
+    return false;
 
   for (int i = 0; i < len_sub; i++) {
     if (str[i] != substr[i]) {

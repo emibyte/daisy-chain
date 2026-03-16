@@ -38,7 +38,7 @@ Building has only been tested on linux and since the files module uses `sys/stat
 ## usage
 Use the help command for an overview of the different commands.
 
-## todos
+## important todos
 - [ ] make due_date actually usable (and think about how to make it usable)
 - [ ] build on windows and arm64 (linux)
 - [ ] make description search not search for an exact match but instead do a contains search

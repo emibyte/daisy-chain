@@ -10,5 +10,9 @@ void
 strnconcat(char ch, size_t n, char *result, size_t result_size);
 int
 get_digit_count(int n);
+bool
+startswith(const char *str, char ch);
+bool
+startswithsubstring(const char *str, const char* substr);
 
 #endif

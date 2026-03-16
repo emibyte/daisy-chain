@@ -41,3 +41,22 @@ get_digit_count(int n) {
 
   return count;
 }
+
+bool
+startswith(const char *str, char ch) {
+  return str[0] == ch;
+}
+
+bool
+startswithsubstring(const char *str, const char *substr) {
+  int len_sub = strlen(substr);
+  int len = strlen(str);
+  if (len_sub > len) return false;
+
+  for (int i = 0; i < len_sub; i++) {
+    if (str[i] != substr[i]) {
+      return false;
+    }
+  }
+  return true;
+}

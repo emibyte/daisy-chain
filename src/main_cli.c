@@ -13,9 +13,6 @@ main(int argc, char **argv) {
     // TODO: Errorcode enum
     return 1;
   }
-  for (int i = 0; i < argc; i++) {
-    printf("%s\n", argv[i]);
-  }
 
   char path[256] = {0};
   char *tasks_path = get_task_file_path(path);
@@ -76,7 +73,6 @@ main(int argc, char **argv) {
     run_completion_cmd(chain, &props, false);
   }
 
-  printf("error code: %d\n", error_code);
   bool success = save_task_chain(tasks_path, chain);
   free_chain(chain);
   return error_code;

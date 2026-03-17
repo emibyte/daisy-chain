@@ -225,10 +225,15 @@ run_list_cmd(task_chain_t *chain, cmd_option_t option) {
 
 void
 run_add_cmd(task_chain_t *chain, property_value_pair_array_t *props) {
+  time_t now = time(NULL);
+  time_t due_date =
+      now + props->pairs[props->due_date_index].due_in_days * 24 * 60 * 60;
+
+  printf("%s", props->pairs[props->description_index].description);
+
   task_t *task = new_task(
       chain->next_id, props->pairs[props->description_index].description,
-      props->pairs[props->due_date_index].due_in_days,
-      props->pairs[props->priority_index].priority, NULL, 0);
+      due_date, props->pairs[props->priority_index].priority, NULL, 0);
   if (task == NULL) {
     fprintf(stderr, "Could not allocate task\n");
     return;

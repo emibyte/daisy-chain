@@ -113,6 +113,7 @@ free_chain(task_chain_t *chain) {
     free_task_node(cur);
     cur = tmp;
   }
+  free(chain);
 }
 
 // TODO: aaaaaaaaaaaaaaaaa
@@ -140,9 +141,14 @@ chain_repr(task_chain_t *chain) {
   }
 
   char *buffer = malloc(size_to_allocate);
+  buffer[0] = '\0'; // need to null out the buffer bcs strcat looks for a null terminator to start appending to!!!
   for (int i = 0; i < idx; i++) {
     strcat(buffer, task_repr_array[i]);
     strcat(buffer, "\n");
+  }
+
+  for (int i = 0; i < chain->size; i++) {
+    free(task_repr_array[i]);
   }
 
   return buffer;
@@ -193,9 +199,14 @@ chain_repr_filtered(task_chain_t *chain, cmd_option_t option) {
   }
 
   char *buffer = malloc(size_to_allocate);
+  buffer[0] = '\0'; // need to null out the buffer bcs strcat looks for a null terminator to start appending to!!!
   for (int i = 0; i < idx; i++) {
     strcat(buffer, task_repr_array[i]);
     strcat(buffer, "\n");
+  }
+
+  for (int i = 0; i < size; i++) {
+    free(task_repr_array[i]);
   }
 
   return buffer;
@@ -234,13 +245,16 @@ from_json_chain(json_object *json_chain) {
 
 task_chain_t *
 load_task_chain(char *filepath) {
-  const char *contents = read_file(filepath);
+  char *contents = read_file(filepath);
   if (contents == NULL) {
     return new_chain();
   }
 
   json_object *json_chain = json_tokener_parse(contents);
   task_chain_t *chain = from_json_chain(json_chain);
+  json_object_put(json_chain);
+
+  free(contents);
   return chain;
 }
 
@@ -248,6 +262,10 @@ bool
 save_task_chain(char *filepath, task_chain_t *chain) {
   json_object *json_chain = to_json_chain(chain);
   const char *json_str_chain = json_object_to_json_string(json_chain);
+
   size_t length = strlen(json_str_chain);
-  return write_file(filepath, json_str_chain, length);
+  bool result = write_file(filepath, json_str_chain, length);
+  json_object_put(json_chain);
+
+  return result;
 }

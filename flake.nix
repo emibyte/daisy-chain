@@ -23,6 +23,7 @@
 
       src = ./.; # whole project directory
       buildInputs = [pkgs.json_c];
+      # dontStrip = true;
 
       # NOTE: write a makefile bcs this will get tedious (it actually did not get tedious)
       extraCFlags = "-I${src}/includes -I${src}";

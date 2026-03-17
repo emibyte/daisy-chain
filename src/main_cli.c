@@ -74,7 +74,9 @@ main(int argc, char **argv) {
   }
 
   bool success = save_task_chain(tasks_path, chain);
+
   free(cmd.args);
   free_chain(chain);
+  free_property_value_pair_array(&props);
   return error_code;
 }

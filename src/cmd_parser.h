@@ -118,5 +118,9 @@ run_help_cmd();
 int
 run_completion_cmd(task_chain_t *chain, property_value_pair_array_t *props,
                    bool val);
+void
+free_property_value_pair(property_value_pair_t pair);
+void
+free_property_value_pair_array(property_value_pair_array_t *array);
 
 #endif

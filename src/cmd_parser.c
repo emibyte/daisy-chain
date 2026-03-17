@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 char *valid_commands[] = {"list", "add",  "remove", "help",
                           "edit", "done", "undone"};
@@ -83,8 +84,8 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
       }
     }
 
-    property_t prop = DESCRIPTION;
-    value_kind_t value = STRING;
+    property_t prop; 
+    value_kind_t value;
     if (strcmp(prop_literal, "due") == 0) {
       prop = DUE_DATE;
       value = INT;
@@ -94,6 +95,9 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
     } else if (strcmp(prop_literal, "id") == 0) {
       prop = ID;
       value = INT;
+    } else if (strcmp(prop_literal, "desc") == 0) {
+      prop = DESCRIPTION;
+      value = STRING;
     } else if (strlen(prop_literal) == 0) {
       // NOTE: we land here if we found only one number
       prop = ID;
@@ -101,12 +105,13 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
     }
 
     props->pairs[i].kind = value;
+    props->pairs[i].prop = prop;
     props->pairs[i].prop_literal = prop_literal;
     if (prop == ID && value == INT) {
       props->pairs[i].id = strtol(value_literal, NULL, 10);
       props->id_index = i;
     } else if (prop == DESCRIPTION && value == STRING) {
-      props->pairs[i].description = value_literal;
+      props->pairs[i].description = strdup(value_literal);
       props->description_index = i;
     } else if (prop == DUE_DATE && value == INT) {
       props->pairs[i].due_in_days = strtol(value_literal, NULL, 10);
@@ -126,6 +131,7 @@ parse_property_values(cmd_t cmd, property_value_pair_array_t *props) {
       }
     }
   }
+
   return 0;
 }
 
@@ -138,7 +144,7 @@ parse_cmd(char *cmd_str, char **argv, int argc, cmd_t *cmd) {
   } else if (strcmp(cmd_str, "remove") == 0) {
     cmd_arg_count = REMOVE_ARGUMENTS_COUNT;
   } else if (strcmp(cmd_str, "edit") == 0) {
-    cmd_arg_count = EDIT_ARGUMENTS_COUNT_MAX;
+    cmd_arg_count = argc - 2;
   } else if (strcmp(cmd_str, "help") == 0) {
     cmd_arg_count = HELP_ARGUMENTS_COUNT;
   } else if (strcmp(cmd_str, "done") == 0) {
@@ -321,4 +327,18 @@ run_completion_cmd(task_chain_t *chain, property_value_pair_array_t *props,
             val ? "completed" : "uncompleted");
   }
   return 0;
+}
+
+void
+free_property_value_pair(property_value_pair_t pair) {
+  if (pair.prop == DESCRIPTION && pair.kind == STRING) {
+    free(pair.description);
+  }
+}
+
+void
+free_property_value_pair_array(property_value_pair_array_t *array) {
+  for (int i = 0; i < array->length; i++) {
+    free_property_value_pair(array->pairs[i]);
+  }
 }

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 // prototype for static function (not in header since that makes no sense)
 static void
@@ -73,18 +74,22 @@ task_repr(task_t *task, int cur_max_id) {
   int align_whitespace_after_id = max_size_id - size_of_id;
   char whitespace_alignment_id[align_whitespace_after_id + 1];
   strnconcat(' ', align_whitespace_after_id, whitespace_alignment_id,
-             align_whitespace_after_prio + 1);
+             align_whitespace_after_id + 1);
 
-  int size_to_allocate = strlen(task->description) + size_of_priority + 50;
+  int size_to_allocate = strlen(task->description) + size_of_priority + 80;
   char *display_buffer = malloc(size_to_allocate * sizeof(char));
   if (display_buffer == NULL) {
     return NULL;
   }
 
+  char time_buf[64];
+  struct tm *tm_info = localtime(&task->due_date);
+  strftime(time_buf, sizeof(time_buf), "%Y-%m-%d", tm_info);
+
   char completed = task->completed ? 'x' : ' ';
-  sprintf(display_buffer, "ID: %d%s, Priority: %s%s - Status: [%c] - %s",
+  sprintf(display_buffer, "ID: %d%s, Priority: %s%s - Status: [%c] - Deadline: %s - %s",
           task->id, whitespace_alignment_id, priority_names[task->priority],
-          whitespace_alignment_prio, completed, task->description);
+          whitespace_alignment_prio, completed, time_buf, task->description);
   return display_buffer;
 }
 
